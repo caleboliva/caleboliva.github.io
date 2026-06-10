@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caleb Oliva — Architecture & Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #0B1220;
+      --bg-2:      #0F1828;
+      --bg-card:   #141E32;
+      --border:    #1D2C44;
+      --text:      #E2DFD8;
+      --muted:     #7A7870;
+      --faint:     #334159;
+      --accent:    #C4C0BA;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      color: var(--text);
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+    /* ─── NAV ────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 52px;
+      transition: background 0.35s, border-bottom 0.35s;
+    }
+
+    nav.scrolled {
+      background: rgba(11,18,32,0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .nav-logo {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 38px;
+    }
+
+    .nav-links a {
+      font-size: 9.5px;
+      font-weight: 400;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    /* ─── HERO ───────────────────────────────────────── */
+    #hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 52px;
+      overflow: hidden;
+    }
+
+    .hero-eyebrow {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .hero-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(58px, 8.5vw, 114px);
+      font-weight: 300;
+      letter-spacing: 0.025em;
+      line-height: 0.93;
+      color: var(--text);
+      margin-bottom: 30px;
+    }
+
+    .hero-tagline {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .hero-tagline::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 0.5px;
+      background: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* Ghost watermark */
+    .hero-ghost {
+      position: absolute;
+      right: -20px;
+      bottom: -80px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(180px, 24vw, 340px);
+      font-weight: 300;
+      line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 0.5px rgba(196,192,186,0.065);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Thin vertical line + scroll label */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 0;
+      left: 52px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scroll-label {
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--faint);
+      writing-mode: vertical-rl;
+    }
+
+    .scroll-line {
+      width: 0.5px;
+      height: 56px;
+      background: linear-gradient(to bottom, var(--faint), transparent);
+      animation: dropLine 2.2s ease-in-out infinite;
+    }
+
+    @keyframes dropLine {
+      0%,100% { opacity: 0.3; transform: scaleY(0.6); }
+      50%      { opacity: 1;   transform: scaleY(1); }
+    }
+
+    /* Coordinates */
+    .hero-coords {
+      position: absolute;
+      bottom: 36px;
+      right: 52px;
+      font-size: 8.5px;
+      letter-spacing: 0.18em;
+      color: var(--faint);
+    }
+
+    /* ─── SHARED SECTION ─────────────────────────────── */
+    section { padding: 112px 52px; position: relative; }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 18px;
+      margin-bottom: 68px;
+    }
+
+    .s-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .s-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(30px, 3.6vw, 50px);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .s-rule {
+      flex: 1;
+      height: 0.5px;
+      background: var(--border);
+      align-self: center;
+    }
+
+    /* ─── IMAGE PLACEHOLDER ──────────────────────────── */
+    .placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+    }
+
+    .ph-bar {
+      width: 28px;
+      height: 0.5px;
+      background: var(--faint);
+    }
+
+    .ph-text {
+      font-size: 7.5px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+
+    /* ─── WORK ───────────────────────────────────────── */
+    #work { background: var(--bg); }
+
+    .projects { display: flex; flex-direction: column; gap: 88px; }
+
+    .project-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 52px;
+      align-items: center;
+    }
+
+    .project-card.flip .p-img  { order: 2; }
+    .project-card.flip .p-info { order: 1; }
+
+    .p-img {
+      aspect-ratio: 4/3;
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .p-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(11,18,32,0.4);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .project-card:hover .p-img::after { opacity: 1; }
+
+    .p-info { padding: 4px 0; }
+
+    .p-num {
+      font-size: 8.5px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .p-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(22px, 2.8vw, 36px);
+      font-weight: 300;
+      line-height: 1.18;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .p-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 20px;
+    }
+
+    .p-tag {
+      font-size: 7.5px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 0.5px solid var(--border);
+      padding: 3px 9px;
+    }
+
+    .p-desc {
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.8;
+      color: var(--muted);
+      margin-bottom: 26px;
+    }
+
+    .p-link {
+      font-size: 8.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: gap 0.25s;
+    }
+
+    .p-link::after { content: '→'; }
+    .p-link:hover { gap: 16px; }
+
+    /* ─── BY HAND ─────────────────────────────────────── */
+    #byhand { background: var(--bg-2); }
+
+    .byhand-intro {
+      max-width: 500px;
+      font-size: 13.5px;
+      font-weight: 300;
+      line-height: 1.85;
+      color: var(--muted);
+      margin-top: -36px;
+      margin-bottom: 52px;
+    }
+
+    .hand-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .hand-item { display: flex; flex-direction: column; gap: 9px; }
+
+    .hand-img {
+      aspect-ratio: 3/4;
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .hand-img:hover { border-color: var(--muted); }
+
+    .hand-cap {
+      font-size: 8.5px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+
+    /* ─── SKETCHBOOK ──────────────────────────────────── */
+    #sketchbook { background: var(--bg); }
+
+    .sketch-intro {
+      max-width: 500px;
+      font-size: 13.5px;
+      font-weight: 300;
+      line-height: 1.85;
+      color: var(--muted);
+      margin-top: -36px;
+      margin-bottom: 52px;
+      font-style: italic;
+    }
+
+    .sketch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: 180px;
+      gap: 10px;
+    }
+
+    .sk {
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .sk:hover { border-color: var(--muted); }
+    .sk.w2 { grid-column: span 2; }
+    .sk.h2 { grid-row: span 2; }
+
+    /* ─── ABOUT ───────────────────────────────────────── */
+    #about { background: var(--bg-2); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .about-photo {
+      aspect-ratio: 3/4;
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+      position: relative;
+    }
+
+    .about-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .about-bio {
+      font-size: 13.5px;
+      font-weight: 300;
+      line-height: 1.88;
+      color: var(--muted);
+      margin-bottom: 38px;
+    }
+
+    .about-bio p + p { margin-top: 15px; }
+
+    .about-links {
+      display: flex;
+      gap: 26px;
+      flex-wrap: wrap;
+    }
+
+    .about-lnk {
+      font-size: 8.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding-bottom: 3px;
+      border-bottom: 0.5px solid var(--border);
+      transition: border-color 0.2s;
+    }
+
+    .about-lnk:hover { border-color: var(--accent); }
+
+    /* ─── FOOTER ──────────────────────────────────────── */
+    footer {
+      padding: 40px 52px;
+      border-top: 0.5px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ft-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+
+    .ft-center {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .ft-email {
+      font-size: 8.5px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+
+    .ft-email:hover { color: var(--text); }
+
+    .ft-copy {
+      font-size: 7.5px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+    }
+
+    .ft-links {
+      display: flex;
+      gap: 22px;
+    }
+
+    .ft-links a {
+      font-size: 8.5px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+
+    .ft-links a:hover { color: var(--text); }
+
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ─────────────────────────────────────────── -->
+  <nav id="nav">
+    <div class="nav-logo">Caleb Oliva</div>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#byhand">By Hand</a></li>
+      <li><a href="#sketchbook">Sketchbook</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="mailto:caleboliva07@gmail.com">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HERO ────────────────────────────────────────── -->
+  <section id="hero">
+    <div class="hero-eyebrow">Architecture &amp; Design &nbsp;·&nbsp; Dallas–Fort Worth</div>
+    <h1 class="hero-name">Caleb<br>Alexander<br>Oliva</h1>
+    <div class="hero-tagline">B.S. Architecture &nbsp;·&nbsp; University of Arkansas &nbsp;·&nbsp; 2026</div>
+    <div class="hero-ghost">CO</div>
+    <div class="scroll-indicator">
+      <span class="scroll-label">Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+    <div class="hero-coords">32°N &nbsp;·&nbsp; 97°W</div>
+  </section>
+
+  <!-- ── WORK ────────────────────────────────────────── -->
+  <section id="work">
+    <div class="section-head">
+      <span class="s-num">01</span>
+      <h2 class="s-title">Selected Work</h2>
+      <div class="s-rule"></div>
+    </div>
+
+    <div class="projects">
+
+      <div class="project-card">
+        <div class="p-img">
+          <!-- Replace with: <img src="images/nevelson-cover.jpg" alt="Nevelson Skyscraper"> -->
+          <div class="placeholder">
+            <div class="ph-bar"></div>
+            <div class="ph-text">Project Image</div>
+            <div class="ph-bar"></div>
+          </div>
+        </div>
+        <div class="p-info">
+          <div class="p-num">Project 01</div>
+          <h3 class="p-title">Louise Nevelson–Inspired Skyscraper &amp; Ground Design</h3>
+          <div class="p-tags">
+            <span class="p-tag">Rhino</span>
+            <span class="p-tag">Mixed-Use</span>
+            <span class="p-tag">Conceptual</span>
+          </div>
+          <p class="p-desc">A formal vocabulary extracted from a focused area of Nevelson's sculpture, translated into facade composition and ground plane design — where artistic language and architectural function converge without either losing its integrity.</p>
+          <a href="#" class="p-link">View Project</a>
+        </div>
+      </div>
+
+      <div class="project-card flip">
+        <div class="p-img">
+          <!-- Replace with: <img src="images/beaver-lake-cover.jpg" alt="Beaver Lake Retreat"> -->
+          <div class="placeholder">
+            <div class="ph-bar"></div>
+            <div class="ph-text">Project Image</div>
+            <div class="ph-bar"></div>
+          </div>
+        </div>
+        <div class="p-info">
+          <div class="p-num">Project 02</div>
+          <h3 class="p-title">Beaver Lake Artist Retreat</h3>
+          <div class="p-tags">
+            <span class="p-tag">Rhino</span>
+            <span class="p-tag">Residential</span>
+            <span class="p-tag">Site Design</span>
+          </div>
+          <p class="p-desc">A retreat campus along an existing Arkansas lakeside, weaving co-op studios, communal dining, individual cabins, and recreational space into a cohesive landscape shaped by the terrain and the rhythms of the creative life it was built to support.</p>
+          <a href="#" class="p-link">View Project</a>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="p-img">
+          <!-- Replace with: <img src="images/light-cover.jpg" alt="Light in Space"> -->
+          <div class="placeholder">
+            <div class="ph-bar"></div>
+            <div class="ph-text">Project Image</div>
+            <div class="ph-bar"></div>
+          </div>
+        </div>
+        <div class="p-info">
+          <div class="p-num">Project 03</div>
+          <h3 class="p-title">Interior Architecture: Light in Space</h3>
+          <div class="p-tags">
+            <span class="p-tag">Revit</span>
+            <span class="p-tag">Interior</span>
+            <span class="p-tag">Lighting Systems</span>
+          </div>
+          <p class="p-desc">An investigation of light as a design medium — choreographing brilliance, task illumination, and ambient wash within an existing building to transform how a space is felt, not just seen.</p>
+          <a href="#" class="p-link">View Project</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── BY HAND ──────────────────────────────────────── -->
+  <section id="byhand">
+    <div class="section-head">
+      <span class="s-num">02</span>
+      <h2 class="s-title">By Hand</h2>
+      <div class="s-rule"></div>
+    </div>
+    <p class="byhand-intro">Sketching and marker rendering are where I think — not just document. These pieces represent the part of the design process that lives before the screen: observation, intuition, and line.</p>
+
+    <div class="hand-grid">
+
+      <div class="hand-item">
+        <div class="hand-img">
+          <!-- Replace with: <img src="images/rendering-01.jpg" alt=""> -->
+          <div class="placeholder"><div class="ph-bar"></div><div class="ph-text">Rendering</div><div class="ph-bar"></div></div>
+        </div>
+        <span class="hand-cap">Marker Rendering</span>
+      </div>
+
+      <div class="hand-item">
+        <div class="hand-img">
+          <!-- Replace with: <img src="images/rendering-02.jpg" alt=""> -->
+          <div class="placeholder"><div class="ph-bar"></div><div class="ph-text">Rendering</div><div class="ph-bar"></div></div>
+        </div>
+        <span class="hand-cap">Marker Rendering</span>
+      </div>
+
+      <div class="hand-item">
+        <div class="hand-img">
+          <!-- Replace with: <img src="images/travel-01.jpg" alt=""> -->
+          <div class="placeholder"><div class="ph-bar"></div><div class="ph-text">Travel Sketch</div><div class="ph-bar"></div></div>
+        </div>
+        <span class="hand-cap">Travel Week · 2025 — Selected for Display</span>
+      </div>
+
+      <div class="hand-item">
+        <div class="hand-img">
+          <!-- Replace with: <img src="images/travel-02.jpg" alt=""> -->
+          <div class="placeholder"><div class="ph-bar"></div><div class="ph-text">Travel Sketch</div><div class="ph-bar"></div></div>
+        </div>
+        <span class="hand-cap">Travel Week · 2025</span>
+      </div>
+
+      <div class="hand-item">
+        <div class="hand-img">
+          <!-- Replace with: <img src="images/drafting-01.jpg" alt=""> -->
+          <div class="placeholder"><div class="ph-bar"></div><div class="ph-text">Hand Draft</div><div class="ph-bar"></div></div>
+        </div>
+        <span class="hand-cap">Hand Drafting</span>
+      </div>
+
+      <div class="hand-item">
+        <div class="hand-img">
+          <!-- Replace with: <img src="images/rendering-03.jpg" alt=""> -->
+          <div class="placeholder"><div class="ph-bar"></div><div class="ph-text">Rendering</div><div class="ph-bar"></div></div>
+        </div>
+        <span class="hand-cap">Marker Rendering</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SKETCHBOOK ──────────────────────────────────── -->
+  <section id="sketchbook">
+    <div class="section-head">
+      <span class="s-num">03</span>
+      <h2 class="s-title">Sketchbook</h2>
+      <div class="s-rule"></div>
+    </div>
+    <p class="sketch-intro">Smaller works, studies, and things that don't need explaining — just looking.</p>
+
+    <div class="sketch-grid">
+      <!-- Mix of wide, tall, and square cells for visual variety -->
+      <!-- Replace background divs with <img> tags when ready -->
+      <div class="sk w2"></div>
+      <div class="sk"></div>
+      <div class="sk"></div>
+      <div class="sk"></div>
+      <div class="sk h2"></div>
+      <div class="sk w2"></div>
+      <div class="sk"></div>
+      <div class="sk"></div>
+      <div class="sk"></div>
+      <div class="sk w2"></div>
+      <div class="sk"></div>
+    </div>
+  </section>
+
+  <!-- ── ABOUT ───────────────────────────────────────── -->
+  <section id="about">
+    <div class="section-head">
+      <span class="s-num">04</span>
+      <h2 class="s-title">About</h2>
+      <div class="s-rule"></div>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-photo">
+        <!-- Replace with: <img src="images/portrait.jpg" alt="Caleb Oliva"> -->
+        <div class="placeholder">
+          <div class="ph-bar"></div>
+          <div class="ph-text">Portrait</div>
+          <div class="ph-bar"></div>
+        </div>
+      </div>
+      <div>
+        <div class="about-name">Caleb<br>Alexander Oliva</div>
+        <div class="about-bio">
+          <p>Originally from Tegucigalpa, Honduras, I grew up drawn to both creativity and systems — a tension that architecture resolves perfectly. The discipline, to me, is not about imposing form but about asking why, repeatedly and rigorously, until a design earns its shape through intention rather than assumption.</p>
+          <p>I work most naturally by hand. Sketching and marker rendering are where I think, not just document, and that tactile process informs how I approach every project regardless of medium.</p>
+          <p>My instinct leans toward residential work and, especially, the transformation of existing spaces — renovation, conversion, adaptive reuse. There is something deeply compelling about a place already carrying history and use, and imagining it elevated: better light, better proportion, better purpose.</p>
+          <p>Currently based in the Dallas–Fort Worth area, recently graduated from the University of Arkansas with a B.S. in Architecture, and actively looking to bring that design rigor into practice.</p>
+        </div>
+        <div class="about-links">
+          <a href="mailto:caleboliva07@gmail.com" class="about-lnk">Email</a>
+          <a href="https://www.linkedin.com/in/caleb-oliva-a95145388/" target="_blank" class="about-lnk">LinkedIn</a>
+          <a href="caleb_oliva_resume.html" target="_blank" class="about-lnk">Résumé</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ──────────────────────────────────────── -->
+  <footer>
+    <div class="ft-name">Caleb Oliva</div>
+    <div class="ft-center">
+      <a href="mailto:caleboliva07@gmail.com" class="ft-email">caleboliva07@gmail.com</a>
+      <span class="ft-copy">© 2026 Caleb Alexander Oliva · Frisco, TX</span>
+    </div>
+    <div class="ft-links">
+      <a href="https://www.linkedin.com/in/caleb-oliva-a95145388/" target="_blank">LinkedIn</a>
+      <a href="mailto:caleboliva07@gmail.com">Contact</a>
+    </div>
+  </footer>
+
+  <script>
+    // Nav: add .scrolled class after 60px
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+  </script>
+
+</body>
+</html>
